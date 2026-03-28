@@ -1,6 +1,7 @@
-# AI Maze Solver using A* Algorithm
+# AI Maze Solver using A* Algorithm [ VITyarthi project ]
+###### UTSAV MAKHIJA ( 25BCE10713 )
 ## Project Overview
-The AI Maze Solver is an interactive application that demonstrates how Artificial Intelligence can be used to find the shortest path in a maze. It uses the A* (A-Star) Search Algorithm, one of the most efficient pathfinding techniques, to navigate from a start point to an end point while avoiding obstacles.
+The AI Maze Solver is an interactive application that demonstrates how Artificial Intelligence can be used to find the shortest path in a maze. It uses the A* Search Algorithm, an efficient pathfinding technique, to navigate from a start point to an end point while avoiding obstacles.
 The project also includes real-time visualization, allowing users to see how the algorithm explores the maze and reaches the solution step-by-step.
 ________________________________________
 ## Objectives
@@ -14,7 +15,7 @@ ________________________________________
 2.	The algorithm evaluates multiple possible paths and chooses the most optimal one
 3.	It mimics intelligent behavior by: \
 o	Exploring efficiently instead of randomly \
-o	Using heuristics to “predict” the best route
+o	Using heuristics to predict the best route
 4.	Falls under the domain of: \
 o	Search Algorithms in AI \
 o	Pathfinding & Optimization Problems
@@ -29,7 +30,7 @@ f(n) = g(n) + h(n) \
 •	h(n) → Estimated cost to reach goal (heuristic)
 ### Why A* is Used
 •	Faster than uninformed search algorithms \
-•	Guarantees shortest path (if heuristic is admissible) \
+•	Guarantees shortest path \
 •	Widely used in real-world applications
 ________________________________________
 ## Features
@@ -42,7 +43,6 @@ o	Green → Start point \
 o	Red → End point \
 o	Yellow → Final path
 3.  Step-by-step animation
-4.  Adjustable grid size
 5.  Adjustable animation speed
 6.  Displays: \
 o	Path length \
