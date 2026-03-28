@@ -65,3 +65,56 @@ def astar(grid , start , end , placeholder , speed):
                         came_from[neighbour] = current
 
     return [] , visited
+#converting grid to a coloured dataframe for better visualisation
+def color_grid(grid):
+    color_map = {
+        0: [255, 255, 255],  # white
+        1: [0, 0, 0],        # black
+        2: [173, 216, 230],  # light blue
+        3: [0, 255, 0],      # green
+        4: [255, 0, 0],      # red
+        5: [255, 255, 0]     # yellow
+    }
+
+    image = np.zeros((grid.shape[0], grid.shape[1], 3), dtype=np.uint8)
+
+    for i in range(grid.shape[0]):
+        for j in range(grid.shape[1]):
+            image[i, j] = color_map[grid[i, j]]
+
+    return image
+    
+#session state
+if 'grid' not in st.session_state:
+    st.session_state.grid = create_grid()
+
+grid = st.session_state.grid
+start = (0 , 0)
+end = (grid_size - 1 , grid_size - 1)
+
+#controls
+col1 , col2 = st.columns(2)
+
+with col1:
+    if st.button("GEMERATE MAZE"):
+        st.session_state.grid = create_grid()
+
+with col2:
+    solve = st.button("SOLVE MAZE")
+
+#speed controls
+
+speed = st.slider("ANIMATION SPEED (lower = faster)" , 0.01 , 0.2 , 0.05)
+
+placeholder = st.empty()
+
+placeholder.dataframe(color_grid(grid))
+
+if solve:
+    path , visited = astar(grid.tolist() , start , end , placeholder , speed)
+
+    st.success("SUCCESS : PATH FOUND")
+
+    st.write("### 📊 Stats")
+    st.write(f"Path Length: {len(path)}")
+    st.write(f"Nodes Explored: {len(visited)}")
