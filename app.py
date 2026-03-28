@@ -1,120 +1,97 @@
-import numpy as np
 import streamlit as st
-import time
+import numpy as np
 import heapq
-import pandas as pd
+import time
 
-st.set_page_config(layout = 'centered')
-st.title("AI MAZE SOLVER USING A* ALGORITHM")
+st.set_page_config(layout="centered")
+st.title("AI Maze Solver with A* Algorithm")
 
-grid_size = 10
+#SETTINGS
+grid_size = st.slider("Grid Size", 10, 30, 20)
+speed = st.slider("Animation Speed (lower = faster)", 0.01, 0.2, 0.05)
 
-# creating a random maze
+#CREATING MAZE
 def create_grid():
-    return np.random.choice([0 , 1] , size = (grid_size , grid_size) , p = [0.7 , 0.3])
+    return np.random.choice([0,1], size=(grid_size, grid_size), p=[0.7,0.3])
 
-# defining the heuristic function
-def heuristic(a , b):
-    return abs(a[0] - b[0]) + abs(a[1] - b[1])
-def astar(grid , start , end , placeholder , speed):
+#HEURISTIC FUNCTION
+def heuristic(a, b):
+    return abs(a[0]-b[0]) + abs(a[1]-b[1])
+
+#COLORS FOR IMAGE OUTPUT
+def color_grid(grid, cell_size=20):
+    color_map = {
+        0: [255, 255, 255],  # empty
+        1: [0, 0, 0],       # wall
+        2: [173, 216, 230],   # explored
+        3: [0, 255, 0],      # start
+        4: [255, 0, 0],      # end
+        5: [255, 255, 0]    # path
+    }
+
+    h, w = grid.shape
+    image = np.zeros((h * cell_size, w * cell_size, 3), dtype=np.uint8)
+
+    for i in range(h):
+        for j in range(w):
+            color = color_map[grid[i, j]]
+            image[i*cell_size:(i+1)*cell_size,
+                  j*cell_size:(j+1)*cell_size] = color
+
+    return image
+
+#A* ALGORITHM
+def astar(grid, start, end, placeholder):
     open_list = []
-    heapq.heappush(open_list , (0 , start))
+    heapq.heappush(open_list, (0, start))
 
     came_from = {}
-    g_cost = {start : 0}
+    g_cost = {start: 0}
     visited = set()
 
     while open_list:
-        _ , current = heapq.heappop(open_list)
+        _, current = heapq.heappop(open_list)
         visited.add(current)
 
-        #updating the visualisation
+        # Visualization
         display = np.copy(grid)
-        for (i , j) in visited:
+
+        for (i,j) in visited:
             display[i][j] = 2
-            display[start] = 3
-            display[end] = 4
 
-            placeholder.dataframe(color_grid(display))
+        display[start] = 3
+        display[end] = 4
 
-            time.sleep(speed)
+        placeholder.image(color_grid(display), width=400)
+        time.sleep(speed)
 
-            if current == end:
-                path = []
-                while current in came_from:
-                    path.append(current)
-                    current = came_from[current]
+        # Goal reached
+        if current == end:
+            path = []
+            while current in came_from:
+                path.append(current)
+                current = came_from[current]
 
-                    display[current] = 5
-                    placeholder.dataframe(color_grid(display))
-                    time.sleep(speed)
-                return path[::-1] , visited
-            
-            for dx , dy in [(0,1),(1,0),(0,-1),(-1,0)]:
-                neighbour = (current[0]+dx , current[1]+dy)
+                display[current] = 5
+                placeholder.image(color_grid(display), width=400)
+                time.sleep(speed)
 
-                if 0 <= neighbour[0] < grid_size and 0 <= neighbour[1] < grid_size:
-                    if grid[neighbour[0]][neighbour[1]] == 1:
-                        continue
-                    new_cost = g_cost[current] + 1
+            return path[::-1], visited
 
-                    if neighbour not in g_cost or new_cost < g_cost[neighbour]:
-                        g_cost[neighbour] = new_cost
-                        f_cost = new_cost + heuristic(neighbour , end)
-                        heapq.heappush(open_list , (f_cost , neighbour))
-                        came_from[neighbour] = current
+        # Explore neighbors
+        for dx, dy in [(0,1),(1,0),(0,-1),(-1,0)]:
+            neighbor = (current[0]+dx, current[1]+dy)
 
-    return [] , visited
-#converting grid to a coloured dataframe for better visualisation
-def color_grid(grid):
-    color_map = {
-        0: [255, 255, 255],  # white
-        1: [0, 0, 0],        # black
-        2: [173, 216, 230],  # light blue
-        3: [0, 255, 0],      # green
-        4: [255, 0, 0],      # red
-        5: [255, 255, 0]     # yellow
-    }
+            if 0 <= neighbor[0] < grid_size and 0 <= neighbor[1] < grid_size:
+                if grid[neighbor[0]][neighbor[1]] == 1:
+                    continue
 
-    image = np.zeros((grid.shape[0], grid.shape[1], 3), dtype=np.uint8)
+                new_cost = g_cost[current] + 1
 
-    for i in range(grid.shape[0]):
-        for j in range(grid.shape[1]):
-            image[i, j] = color_map[grid[i, j]]
+                if neighbor not in g_cost or new_cost < g_cost[neighbor]:
+                    g_cost[neighbor] = new_cost
+                    f_cost = new_cost + heuristic(neighbor, end)
+                    heapq.heappush(open_list, (f_cost, neighbor))
+                    came_from[neighbor] = current
 
-    return image
-    
-#session state
-if 'grid' not in st.session_state:
-    st.session_state.grid = create_grid()
-
-grid = st.session_state.grid
-start = (0 , 0)
-end = (grid_size - 1 , grid_size - 1)
-
-#controls
-col1 , col2 = st.columns(2)
-
-with col1:
-    if st.button("GEMERATE MAZE"):
-        st.session_state.grid = create_grid()
-
-with col2:
-    solve = st.button("SOLVE MAZE")
-
-#speed controls
-
-speed = st.slider("ANIMATION SPEED (lower = faster)" , 0.01 , 0.2 , 0.05)
-
-placeholder = st.empty()
-
-placeholder.dataframe(color_grid(grid))
-
-if solve:
-    path , visited = astar(grid.tolist() , start , end , placeholder , speed)
-
-    st.success("SUCCESS : PATH FOUND")
-
-    st.write("### 📊 Stats")
-    st.write(f"Path Length: {len(path)}")
-    st.write(f"Nodes Explored: {len(visited)}")
+    return [], visited
