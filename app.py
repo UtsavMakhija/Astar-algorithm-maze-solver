@@ -95,3 +95,21 @@ def astar(grid, start, end, placeholder):
                     came_from[neighbor] = current
 
     return [], visited
+#SESSION STATE
+if "grid" not in st.session_state:
+    st.session_state.grid = create_grid()
+
+grid = st.session_state.grid
+
+start = (0,0)
+end = (grid_size-1, grid_size-1)
+
+#BUTTONS
+col1, col2 = st.columns(2)
+
+with col1:
+    if st.button("Generate New Maze"):
+        st.session_state.grid = create_grid()
+
+with col2:
+    solve = st.button("Solve Maze")
