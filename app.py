@@ -6,27 +6,25 @@ import time
 st.set_page_config(layout="centered")
 st.title("AI Maze Solver with A* Algorithm")
 
-#SETTINGS
-grid_size = st.slider("Grid Size", 10, 30, 20)
-speed = st.slider("Animation Speed (lower = faster)", 0.01, 0.2, 0.05)
+grid_size = 20
+speed = 0.05
 
-#CREATING MAZE
+#creating maze
 def create_grid():
     return np.random.choice([0,1], size=(grid_size, grid_size), p=[0.7,0.3])
 
-#HEURISTIC FUNCTION
 def heuristic(a, b):
     return abs(a[0]-b[0]) + abs(a[1]-b[1])
 
-#COLORS FOR IMAGE OUTPUT
+#colours
 def color_grid(grid, cell_size=20):
     color_map = {
         0: [255, 255, 255],  # empty
         1: [0, 0, 0],       # wall
         2: [173, 216, 230],   # explored
-        3: [0, 255, 0],      # start
-        4: [255, 0, 0],      # end
-        5: [255, 255, 0]    # path
+        3: [0, 255, 0],     # start
+        4: [255, 0, 0],       # end
+        5: [255, 255, 0]     # path
     }
 
     h, w = grid.shape
@@ -40,7 +38,7 @@ def color_grid(grid, cell_size=20):
 
     return image
 
-#A* ALGORITHM
+#A*
 def astar(grid, start, end, placeholder):
     open_list = []
     heapq.heappush(open_list, (0, start))
@@ -62,7 +60,7 @@ def astar(grid, start, end, placeholder):
         display[start] = 3
         display[end] = 4
 
-        placeholder.image(color_grid(display), width=400)
+        placeholder.image(color_grid(display), width=500)
         time.sleep(speed)
 
         # Goal reached
@@ -73,7 +71,7 @@ def astar(grid, start, end, placeholder):
                 current = came_from[current]
 
                 display[current] = 5
-                placeholder.image(color_grid(display), width=400)
+                placeholder.image(color_grid(display), width=500)
                 time.sleep(speed)
 
             return path[::-1], visited
@@ -95,7 +93,8 @@ def astar(grid, start, end, placeholder):
                     came_from[neighbor] = current
 
     return [], visited
-#SESSION STATE
+
+#session state
 if "grid" not in st.session_state:
     st.session_state.grid = create_grid()
 
@@ -104,7 +103,7 @@ grid = st.session_state.grid
 start = (0,0)
 end = (grid_size-1, grid_size-1)
 
-#BUTTONS
+#buttons
 col1, col2 = st.columns(2)
 
 with col1:
@@ -113,3 +112,40 @@ with col1:
 
 with col2:
     solve = st.button("Solve Maze")
+
+#original maze
+st.write("Original Maze")
+
+initial_display = np.copy(grid)
+initial_display[start] = 3
+initial_display[end] = 4
+
+st.image(color_grid(initial_display), width=500)
+
+#animation
+st.write("Solving Process")
+placeholder = st.empty()
+
+#solving the maze
+if solve:
+    path, visited = astar(grid.tolist(), start, end, placeholder)
+
+    if path:
+        st.success("Path Found!")
+    else:
+        st.error("No Path Found!")
+
+    st.write("STATS")
+    st.write(f"Path Length: {len(path)}")
+    st.write(f"Nodes Explored: {len(visited)}")
+
+#legend
+st.write("""
+### Legend:
+White = Empty Cell  
+Black = Wall  
+Blue = Explored Nodes  
+Green = Start Node  
+Red = End Node  
+Yellow = Final Optimal Path  
+""")
