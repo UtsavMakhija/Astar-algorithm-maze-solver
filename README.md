@@ -108,4 +108,4 @@ ________________________________________
 This project successfully demonstrates how Artificial Intelligence can be applied to solve pathfinding problems efficiently. By combining theory with visualization, it provides a strong foundation for understanding more advanced AI systems used in real-world applications.
 ________________________________________
 ## Author
-•	Utsav Makhija
+•	Utsav Makhija (25BCE10713)
